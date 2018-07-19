@@ -34,9 +34,11 @@ class SNSHook(AwsHook):
         present_values = [x for x in possible_values if x is not None]
 
         if len(present_values) > 1:
-            raise AirflowException('You may only include only one out of TopicArn, TargetArn and PhoneNumber')
+            raise AirflowException('You may only include only one out of TopicArn, \
+                                    TargetArn and PhoneNumber')
         if len(present_values) is 0:
-            raise AirflowException('Either TopicArn, TargetArn or PhoneNumber must be specified')
+            raise AirflowException('Either TopicArn, TargetArn or \
+                                    PhoneNumber must be specified')
 
         if topic_arn:
             params['TopicArn'] = topic_arn
@@ -54,4 +56,5 @@ class SNSHook(AwsHook):
             logging.info('Successfully published message to topic')
             return response
         except Exception as err:
-            raise AirflowException('Failed to publish message to topic with error: {error}'.format(error=err))
+            raise AirflowException('Failed to publish message to topic \
+                                   with error: {error}'.format(error=err))

@@ -32,23 +32,25 @@ class TestSNSHook(unittest.TestCase):
         conn = boto3.client('sns', 'eu-west-1')
         topic_create_response = conn.create_topic(Name='test')
 
-        # Initialize the SQS client, create a queue and subscribe to the SNS topic created above
+        # Initialize the SQS client, create a queue
+        # and subscribe to the SNS topic created above
         sqs_conn = boto3.client('sqs', 'eu-west-1')
         create_queue_response = sqs_conn.create_queue(QueueName='test')
-        queue_attrs = sqs_conn.get_queue_attributes(QueueUrl=create_queue_response['QueueUrl'], AttributeNames=['QueueArn'])
+        queue_attrs = sqs_conn.get_queue_attributes(
+            QueueUrl=create_queue_response['QueueUrl'],
+            AttributeNames=['QueueArn'])
         conn.subscribe(TopicArn=topic_create_response['TopicArn'],
                        Protocol='sqs',
                        Endpoint=queue_attrs['Attributes']['QueueArn'])
 
         # Publish the test message to our SNS topic with the SNSHook
         hook = SNSHook(aws_conn_id=None, region_name='eu-west-1')
-        publish_response = hook.publish(
-            topic_arn=topic_create_response['TopicArn'],
-            message=test_message
-        )
+        publish_response = hook.publish(topic_arn=topic_create_response['TopicArn'],
+                                        message=test_message)
 
         # Pull message that was sent from SNS to the SQS queue
-        messages = sqs_conn.receive_message(QueueUrl=create_queue_response['QueueUrl'], MaxNumberOfMessages=1)
+        messages = sqs_conn.receive_message(QueueUrl=create_queue_response['QueueUrl'],
+                                            MaxNumberOfMessages=1)
         first_message = messages['Messages'][0]
         message_body = json.loads(first_message['Body'])
 
