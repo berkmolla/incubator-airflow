@@ -22,6 +22,7 @@ import json
 from airflow.hooks.sns_hook import SNSHook
 from airflow.models import BaseOperator
 
+
 class SNSPublishOperator(BaseOperator):
 
     def __init__(self,
